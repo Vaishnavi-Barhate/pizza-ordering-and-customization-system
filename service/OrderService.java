@@ -1,31 +1,19 @@
 package service;
 
-import enums.PizzaCategory;
 import enums.ToppingType;
 import pizza.Pizza;
-import topping.*;
+import topping.ToppingDecorator;
 
-public class OrderService {
-
-    public static boolean isToppingAllowed(PizzaCategory category, ToppingType topping) {
-        return switch (category) {
-            case VEG -> topping != ToppingType.CHICKEN && topping != ToppingType.PEPPERONI;
-            case VEGAN -> topping == ToppingType.OLIVES
-                        || topping == ToppingType.MUSHROOM
-                        || topping == ToppingType.JALAPENOS;
-            case NON_VEG -> true;
-        };
-    }
+public final class OrderService {
 
     public static Pizza addTopping(Pizza pizza, ToppingType topping) {
-        return switch (topping) {
-            case CHEESE -> new Cheese(pizza);
-            case OLIVES -> new Olives(pizza);
-            case MUSHROOM -> new Mushroom(pizza);
-            case JALAPENOS -> new Jalapenos(pizza);
-            case PANEER -> new Paneer(pizza);
-            case CHICKEN -> new Chicken(pizza);
-            case PEPPERONI -> new Pepperoni(pizza);
-        };
+
+        if (!pizza.isToppingAllowed(topping)) {
+            throw new IllegalArgumentException(
+                    "Topping " + topping + " is not allowed for " + pizza.category()
+            );
+        }
+
+        return new ToppingDecorator(pizza, topping);
     }
 }

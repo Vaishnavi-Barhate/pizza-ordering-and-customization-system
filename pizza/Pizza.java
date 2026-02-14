@@ -2,20 +2,17 @@ package pizza;
 
 import enums.PizzaCategory;
 import enums.PizzaSize;
+import enums.ToppingType;
 
-public abstract class Pizza {
+public interface Pizza {
 
-    protected PizzaSize size;
+    PizzaSize size();
 
-    public Pizza(PizzaSize size) {
-        this.size = size;
-    }
+    PizzaCategory category();
 
-    public PizzaSize getSize() {
-        return size;
-    }
+    double getPrice();
 
-    public abstract double getPrice();
-    public abstract String getDescription();
-    public abstract PizzaCategory getCategory();
+    String getDescription();
+
+    boolean isToppingAllowed(ToppingType topping);
 }

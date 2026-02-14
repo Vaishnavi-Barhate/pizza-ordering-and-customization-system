@@ -1,6 +1,7 @@
 package enums;
 
 public enum PizzaSize {
+
     SMALL(1.0),
     MEDIUM(1.3),
     LARGE(1.6);
@@ -11,7 +12,7 @@ public enum PizzaSize {
         this.multiplier = multiplier;
     }
 
-    public double getMultiplier() {
+    public double multiplier() {
         return multiplier;
     }
 }

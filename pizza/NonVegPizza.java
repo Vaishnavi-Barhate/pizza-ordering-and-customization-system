@@ -2,27 +2,38 @@ package pizza;
 
 import enums.PizzaCategory;
 import enums.PizzaSize;
+import enums.ToppingType;
 
-public class NonVegPizza extends Pizza {
+public final class NonVegPizza implements Pizza {
 
-    private static final double BASE_PRICE = 250;
+    private final PizzaSize size;
 
     public NonVegPizza(PizzaSize size) {
-        super(size);
+        this.size = size;
     }
 
     @Override
-    public PizzaCategory getCategory() {
+    public PizzaSize size() {
+        return size;
+    }
+
+    @Override
+    public PizzaCategory category() {
         return PizzaCategory.NON_VEG;
     }
 
     @Override
     public double getPrice() {
-        return BASE_PRICE * size.getMultiplier();
+        return category().basePrice() * size.multiplier();
     }
 
     @Override
     public String getDescription() {
-        return "Non-Veg Pizza";
+        return category().displayName() + " Pizza";
+    }
+
+    @Override
+    public boolean isToppingAllowed(ToppingType topping) {
+        return true; 
     }
 }

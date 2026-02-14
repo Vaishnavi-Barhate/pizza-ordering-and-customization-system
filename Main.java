@@ -1,4 +1,6 @@
-import enums.*;
+import enums.PizzaCategory;
+import enums.PizzaSize;
+import enums.ToppingType;
 import factory.PizzaFactory;
 import java.util.Scanner;
 import pizza.Pizza;
@@ -6,52 +8,91 @@ import service.OrderService;
 
 public class Main {
 
+    private static final Scanner scanner = new Scanner(System.in);
+
     public static void main(String[] args) {
-        Scanner sc = new Scanner(System.in);
 
-        System.out.println("Select Pizza Category:");
-        System.out.println("1. Veg");
-        System.out.println("2. Non-Veg");
-        System.out.println("3. Vegan");
-        PizzaCategory category = PizzaCategory.values()[sc.nextInt() - 1];
+        System.out.println("Welcome to Pizza Ordering System you can customize your pizza with various toppings!");
 
-        System.out.println("\nSelect Pizza Size:");
-        System.out.println("1. Small");
-        System.out.println("2. Medium");
-        System.out.println("3. Large");
-        PizzaSize size = PizzaSize.values()[sc.nextInt() - 1];
+        PizzaCategory category = selectCategory();
+        PizzaSize size = selectSize();
 
         Pizza pizza = PizzaFactory.createPizza(category, size);
 
+        pizza = customizePizza(pizza);
+
+        displaySummary(pizza);
+    }
+
+    private static PizzaCategory selectCategory() {
+        System.out.println("\nSelect Pizza Category:");
+        printOptions(PizzaCategory.values());
+
+        int choice = readChoice(1, PizzaCategory.values().length);
+        return PizzaCategory.values()[choice - 1];
+    }
+
+    private static PizzaSize selectSize() {
+        System.out.println("\nSelect Pizza Size:");
+        printOptions(PizzaSize.values());
+
+        int choice = readChoice(1, PizzaSize.values().length);
+        return PizzaSize.values()[choice - 1];
+    }
+
+    private static Pizza customizePizza(Pizza pizza) {
+
         while (true) {
-            System.out.println("\nDo you want to add a topping?");
+            System.out.println("\nAdd Topping?");
             System.out.println("1. Yes");
             System.out.println("2. No");
-            int choice = sc.nextInt();
+
+            int choice = readChoice(1, 2);
             if (choice == 2) break;
 
-            System.out.println("\nChoose Topping:");
-            ToppingType[] toppings = ToppingType.values();
-            for (int i = 0; i < toppings.length; i++) {
-                System.out.println((i + 1) + ". " + toppings[i]);
+            System.out.println("\nAvailable Toppings:");
+            printOptions(ToppingType.values());
+
+            int toppingChoice = readChoice(1, ToppingType.values().length);
+            ToppingType selected = ToppingType.values()[toppingChoice - 1];
+
+            try {
+                pizza = OrderService.addTopping(pizza, selected);
+                System.out.println("Added: " + selected);
+            } catch (IllegalArgumentException e) {
+                System.out.println("Error: " + e.getMessage());
             }
-
-            ToppingType selected = toppings[sc.nextInt() - 1];
-
-            if (!OrderService.isToppingAllowed(category, selected)) {
-                System.out.println("This topping is not allowed for selected pizza type");
-                continue;
-            }
-
-            pizza = OrderService.addTopping(pizza, selected);
         }
 
-        System.out.println("\nORDER SUMMARY");
-        System.out.println("Category : " + pizza.getCategory());
-        System.out.println("Size     : " + pizza.getSize());
-        System.out.println("Toppings : " + pizza.getDescription());
-        System.out.println("Total ₹  : " + pizza.getPrice());
+        return pizza;
+    }
 
-        sc.close();
+    private static void displaySummary(Pizza pizza) {
+        System.out.println("\n ORDER SUMMARY");
+        System.out.println("Category : " + pizza.category().displayName());
+        System.out.println("Size     : " + pizza.size());
+        System.out.println("Details  : " + pizza.getDescription());
+        System.out.println("Total ₹  : " + pizza.getPrice());
+    }
+
+    private static int readChoice(int min, int max) {
+
+        while (true) {
+            try {
+                int input = Integer.parseInt(scanner.next());
+                if (input >= min && input <= max) {
+                    return input;
+                }
+                System.out.println("Please enter a number between " + min + " and " + max);
+            } catch (NumberFormatException e) {
+                System.out.println("Invalid input. Please enter a valid number.");
+            }
+        }
+    }
+
+    private static <T> void printOptions(T[] options) {
+        for (int i = 0; i < options.length; i++) {
+            System.out.println((i + 1) + ". " + options[i]);
+        }
     }
 }
