@@ -12,14 +12,16 @@ public class Main {
 
     public static void main(String[] args) {
 
-        System.out.println("Welcome to Pizza Ordering System you can customize your pizza with various toppings!");
+        System.out.println("Welcome to Pizza Ordering System");
 
         PizzaCategory category = selectCategory();
         PizzaSize size = selectSize();
 
         Pizza pizza = PizzaFactory.createPizza(category, size);
 
-        pizza = customizePizza(pizza);
+        ToppingType[] selectedToppings = collectToppings();
+
+        pizza = OrderService.applyToppings(pizza, selectedToppings);
 
         displaySummary(pizza);
     }
@@ -40,9 +42,13 @@ public class Main {
         return PizzaSize.values()[choice - 1];
     }
 
-    private static Pizza customizePizza(Pizza pizza) {
+    private static ToppingType[] collectToppings() {
+
+        ToppingType[] toppings = new ToppingType[10]; 
+        int count = 0;
 
         while (true) {
+
             System.out.println("\nAdd Topping?");
             System.out.println("1. Yes");
             System.out.println("2. No");
@@ -53,23 +59,23 @@ public class Main {
             System.out.println("\nAvailable Toppings:");
             printOptions(ToppingType.values());
 
-            int toppingChoice = readChoice(1, ToppingType.values().length);
-            ToppingType selected = ToppingType.values()[toppingChoice - 1];
+            int toppingChoice =
+                    readChoice(1, ToppingType.values().length);
 
-            try {
-                pizza = OrderService.addTopping(pizza, selected);
-                System.out.println("Added: " + selected);
-            } catch (IllegalArgumentException e) {
-                System.out.println("Error: " + e.getMessage());
-            }
+            ToppingType selected =
+                    ToppingType.values()[toppingChoice - 1];
+
+            toppings[count++] = selected;
+
+            System.out.println("Selected: " + selected);
         }
 
-        return pizza;
+        return toppings;
     }
 
     private static void displaySummary(Pizza pizza) {
         System.out.println("\n ORDER SUMMARY");
-        System.out.println("Category : " + pizza.category().displayName());
+        System.out.println("Category : " + pizza.category());
         System.out.println("Size     : " + pizza.size());
         System.out.println("Details  : " + pizza.getDescription());
         System.out.println("Total ₹  : " + pizza.getPrice());
@@ -83,9 +89,9 @@ public class Main {
                 if (input >= min && input <= max) {
                     return input;
                 }
-                System.out.println("Please enter a number between " + min + " and " + max);
+                System.out.println("Enter number between " + min + " and " + max);
             } catch (NumberFormatException e) {
-                System.out.println("Invalid input. Please enter a valid number.");
+                System.out.println("Invalid input. Enter a number.");
             }
         }
     }
